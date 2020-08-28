@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/SmashXric/treedrawer/tree"
+	"github.com/m1gwings/treedrawer/tree"
 )
 
 var lFlag = flag.Int("l", 4, "Max number of layers in the random tree")

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/SmashXric/treedrawer/drawer"
+	"github.com/m1gwings/treedrawer/drawer"
 )
 
 func init() {
