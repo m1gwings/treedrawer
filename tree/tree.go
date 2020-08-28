@@ -143,7 +143,7 @@ func stringify(t *Tree) *drawer.Drawer {
 	w := maxChildW*2 + 1
 	maxChildH := int(math.Max(float64(dLeftH), float64(dRightH)))
 	slashEndI := maxChildW/2 + 1
-	edgeH := maxChildW - slashEndI + 1
+	edgeH := maxChildW - slashEndI
 	h := maxChildH + edgeH + 1
 	d := drawer.NewDrawer(w, h)
 	err := d.DrawDrawer(dVal, (w-dValW)/2, 0)
@@ -160,11 +160,11 @@ func stringify(t *Tree) *drawer.Drawer {
 			log.Fatal(fmt.Errorf("error while drawing \\ with two children: %v", err))
 		}
 	}
-	d.DrawDrawer(dLeft, (maxChildW-dLeftW)/2, edgeH)
+	d.DrawDrawer(dLeft, (maxChildW-dLeftW)/2, edgeH+1)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error while drawing left child: %v", err))
 	}
-	d.DrawDrawer(dRight, maxChildW+1+(maxChildW-dRightW)/2, edgeH)
+	d.DrawDrawer(dRight, maxChildW+1+(maxChildW-dRightW)/2, edgeH+1)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error while drawing right child: %v", err))
 	}

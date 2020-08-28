@@ -28,27 +28,30 @@ you will get a binary that prints random trees to give you an idea.
 ```
 ./treedrawer
 
-        59         
+        76         
          |         
-        32         
+        15         
         / \        
        /   \       
       /     \      
      /       \     
-   7         77    
-    |        / \   
-   19      24   91 
+   28        12    
+   / \        |    
+ 94   63     39    
 ```
 
 With the **-l** flag you can specify the maximum number of layers of the random tree
 ```
 ./treedrawer -l 3
 
-   70    
-    |    
-   28    
-   / \   
- 27   64 
+        14         
+        / \        
+       /   \       
+      /     \      
+     /       \     
+   45        84    
+   / \       / \   
+ 38   72   77   32 
 ```
 # API
 ## Building the tree
