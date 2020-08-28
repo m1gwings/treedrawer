@@ -2,17 +2,17 @@ package drawer
 
 import "fmt"
 
-// Drawer is a canvas on which you can draw ascii bytes.
+// Drawer is a canvas on which you can draw unicode runes.
 type Drawer struct {
-	canvas [][]byte
+	canvas [][]rune
 }
 
 // NewDrawer returns a new Drawer with width w and height h.
 func NewDrawer(w, h int) *Drawer {
 	d := new(Drawer)
-	d.canvas = make([][]byte, h)
+	d.canvas = make([][]rune, h)
 	for i := range d.canvas {
-		d.canvas[i] = make([]byte, w)
+		d.canvas[i] = make([]rune, w)
 	}
 	return d
 }
@@ -20,19 +20,19 @@ func NewDrawer(w, h int) *Drawer {
 // NewDrawerFromString return a new  Drawer which contains the string s.
 func NewDrawerFromString(s string) *Drawer {
 	d := new(Drawer)
-	d.canvas = make([][]byte, 1)
-	d.canvas[0] = []byte(s)
+	d.canvas = make([][]rune, 1)
+	d.canvas[0] = []rune(s)
 	return d
 }
 
-// DrawByte draws a byte in position x, y in the drawer canvas.
+// DrawRune draws a rune in position x, y in the drawer canvas.
 // Returns an error if the x, y position in input is outside the canvas.
-func (d *Drawer) DrawByte(b byte, x, y int) error {
+func (d *Drawer) DrawRune(r rune, x, y int) error {
 	w, h := d.Dimens()
 	if x >= w || y >= h {
 		return fmt.Errorf("position (%d, %d) is outside the canvas of dimension (%d, %d)", x, y, w, h)
 	}
-	d.canvas[y][x] = b
+	d.canvas[y][x] = r
 	return nil
 }
 
@@ -45,8 +45,8 @@ func (d *Drawer) DrawDrawer(e *Drawer, x, y int) error {
 		return fmt.Errorf("canvas e of dimension (%d, %d) drawn in position (%d, %d) overflows canvas d of dimension (%d, %d)", eW, eH, x, y, w, h)
 	}
 	for i, row := range e.canvas {
-		for j, b := range row {
-			d.canvas[i+y][j+x] = b
+		for j, r := range row {
+			d.canvas[i+y][j+x] = r
 		}
 	}
 	return nil

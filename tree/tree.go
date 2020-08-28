@@ -125,7 +125,7 @@ func stringify(t *Tree) *drawer.Drawer {
 		if err != nil {
 			log.Fatal(fmt.Errorf("error while drawing val with one child: %v", err))
 		}
-		err = d.DrawByte('|', w/2, 1)
+		err = d.DrawRune('│', w/2, 1)
 		if err != nil {
 			log.Fatal(fmt.Errorf("error while drawing | with one child: %v", err))
 		}
@@ -142,29 +142,39 @@ func stringify(t *Tree) *drawer.Drawer {
 	maxChildW := int(math.Max(float64(dLeftW), float64(dRightW)))
 	w := maxChildW*2 + 1
 	maxChildH := int(math.Max(float64(dLeftH), float64(dRightH)))
-	slashEndI := maxChildW/2 + 1
-	edgeH := maxChildW - slashEndI
-	h := maxChildH + edgeH + 1
+	h := maxChildH + 2
 	d := drawer.NewDrawer(w, h)
 	err := d.DrawDrawer(dVal, (w-dValW)/2, 0)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error while drawing val with two children: %v", err))
 	}
-	for i := 0; i < edgeH; i++ {
-		err = d.DrawByte('/', w/2-1-i, i+1)
+	err = d.DrawRune('┴', w/2, 1)
+	if err != nil {
+		log.Fatal(fmt.Errorf("error while drawing ┴ rune with two childern: %v", err))
+	}
+	for i := 1; i <= maxChildW/2; i++ {
+		err = d.DrawRune('─', w/2-i, 1)
 		if err != nil {
-			log.Fatal(fmt.Errorf("error while drawing / with two children: %v", err))
+			log.Fatal(fmt.Errorf("error while drawing ─ rune with two childern with negative i: %v", err))
 		}
-		err = d.DrawByte('\\', w/2+1+i, i+1)
+		err = d.DrawRune('─', w/2+i, 1)
 		if err != nil {
-			log.Fatal(fmt.Errorf("error while drawing \\ with two children: %v", err))
+			log.Fatal(fmt.Errorf("error while drawing ─ rune with two childern with positive i: %v", err))
 		}
 	}
-	d.DrawDrawer(dLeft, (maxChildW-dLeftW)/2, edgeH+1)
+	err = d.DrawRune('╭', w/2-maxChildW/2-1, 1)
+	if err != nil {
+		log.Fatal(fmt.Errorf("error while drawing ╭ rune with two children: %v", err))
+	}
+	err = d.DrawRune('╮', w/2+maxChildW/2+1, 1)
+	if err != nil {
+		log.Fatal(fmt.Errorf("error while drawing ╮ rune with two children: %v", err))
+	}
+	err = d.DrawDrawer(dLeft, (maxChildW-dLeftW)/2, 2)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error while drawing left child: %v", err))
 	}
-	d.DrawDrawer(dRight, maxChildW+1+(maxChildW-dRightW)/2, edgeH+1)
+	err = d.DrawDrawer(dRight, maxChildW+1+(maxChildW-dRightW)/2, 2)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error while drawing right child: %v", err))
 	}

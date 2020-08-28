@@ -16,7 +16,7 @@ type Tree struct {
 }
 ```
 
-**drawer** is a very simple "ascii-canvas" on which you can draw bytes representing ascii characters or another whole canvas specifying the coordinates of the upper-left corner.
+**drawer** is a very simple "unicode-canvas" on which you can draw runes representing unicode characters or another whole canvas specifying the coordinates of the upper-left corner.
 
 ---
 If you run the following in the root directory:
@@ -28,30 +28,24 @@ you will get a binary that prints random trees to give you an idea.
 ```
 ./treedrawer
 
-        76         
-         |         
-        15         
-        / \        
-       /   \       
-      /     \      
-     /       \     
-   28        12    
-   / \        |    
- 94   63     39    
+        14         
+         │         
+        37         
+    ╭────┴────╮    
+   97        29    
+    │      ╭──┴──╮ 
+   12      47   24 
 ```
 
 With the **-l** flag you can specify the maximum number of layers of the random tree
 ```
 ./treedrawer -l 3
 
-        14         
-        / \        
-       /   \       
-      /     \      
-     /       \     
-   45        84    
-   / \       / \   
- 38   72   77   32 
+   71    
+    │    
+   60    
+ ╭──┴──╮ 
+ 45   51 
 ```
 # API
 ## Building the tree
@@ -76,7 +70,7 @@ Tree type satisfies the Stringer interface, you can easily use fmt package to ge
 fmt.Println(t)
 
    2   
-  / \  
+ ╭─┴─╮ 
  5   3 
 ```
 ## Retreiving values from the tree
