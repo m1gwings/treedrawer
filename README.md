@@ -4,8 +4,8 @@ treedrawer is a simple go module that will help you to visualize binary trees in
 I started to build this module by trying to solve an exercise on "The Go Programming Language". The task was to implement the String() function of a binary tree.
 # Code structure
 This module has two sub-packages:
-* tree
-* drawer
+* treedrawer/**tree**
+* treedrawer/**drawer**
 
 **tree** provides a simple representation of a binary tree:
 ```
@@ -46,6 +46,11 @@ With the **-l** flag you can specify the maximum number of layers of the random 
    60    
  ╭──┴──╮ 
  45   51 
+```
+# Import
+In order to use the tree API below import the following:
+```
+import "github.com/m1gwings/treedrawer/tree"
 ```
 # API
 ## Building the tree
