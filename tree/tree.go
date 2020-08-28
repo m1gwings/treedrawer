@@ -27,7 +27,7 @@ func (t *Tree) Val() int64 {
 }
 
 // Left moves the current node to its left child.
-// returns false if there is no left child, otherwise it returns true.
+// Returns false if there is no left child, otherwise it returns true.
 func (t *Tree) Left() (ok bool) {
 	if t.left == nil {
 		return false
@@ -37,7 +37,7 @@ func (t *Tree) Left() (ok bool) {
 }
 
 // Right moves the current node to its right child.
-// returns false if there is no right child, otherwise it returns true.
+// Returns false if there is no right child, otherwise it returns true.
 func (t *Tree) Right() (ok bool) {
 	if t.right == nil {
 		return false
@@ -46,14 +46,19 @@ func (t *Tree) Right() (ok bool) {
 	return true
 }
 
-// Parent moves the current node to its parent child.
-// returns false if this node is the root of the whole tree, otherwise it returns true.
+// Parent moves the current node to its parent.
+// Returns false if this node is the root of the whole tree, otherwise it returns true.
 func (t *Tree) Parent() (ok bool) {
 	if t.parent == nil {
 		return false
 	}
 	t = t.parent
 	return true
+}
+
+// NewTree is the default constructor for Tree.
+func NewTree(val int64) *Tree {
+	return &Tree{val: val}
 }
 
 // AddLeft adds a left child to the current node which will held val.
