@@ -17,14 +17,6 @@ func NewDrawer(w, h int) *Drawer {
 	return d
 }
 
-// NewDrawerFromString return a new  Drawer which contains the string s.
-func NewDrawerFromString(s string) *Drawer {
-	d := new(Drawer)
-	d.canvas = make([][]rune, 1)
-	d.canvas[0] = []rune(s)
-	return d
-}
-
 // DrawRune draws a rune in position x, y in the drawer canvas.
 // Returns an error if the x, y position in input is outside the canvas.
 func (d *Drawer) DrawRune(r rune, x, y int) error {
