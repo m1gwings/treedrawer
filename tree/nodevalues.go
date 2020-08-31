@@ -29,7 +29,10 @@ type NodeString string
 
 // Draw satisfies the NodeValue interface.
 func (s NodeString) Draw() *drawer.Drawer {
-	d := drawer.NewDrawer(len(s), 1)
+	d, err := drawer.NewDrawer(len(s), 1)
+	if err != nil {
+		log.Fatal(fmt.Errorf("error while allocating new drawer in NodeString.Draw: %v", err))
+	}
 	for i, r := range s {
 		err := d.DrawRune(r, i, 0)
 		if err != nil {

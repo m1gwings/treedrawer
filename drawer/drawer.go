@@ -8,20 +8,23 @@ type Drawer struct {
 }
 
 // NewDrawer returns a new Drawer with width w and height h.
-func NewDrawer(w, h int) *Drawer {
+func NewDrawer(w, h int) (*Drawer, error) {
+	if w < 1 || h < 1 {
+		return nil, fmt.Errorf("width and height must be at least 1, received %d %d", w, h)
+	}
 	d := new(Drawer)
 	d.canvas = make([][]rune, h)
 	for i := range d.canvas {
 		d.canvas[i] = make([]rune, w)
 	}
-	return d
+	return d, nil
 }
 
 // DrawRune draws a rune in position x, y in the drawer canvas.
 // Returns an error if the x, y position in input is outside the canvas.
 func (d *Drawer) DrawRune(r rune, x, y int) error {
 	w, h := d.Dimens()
-	if x >= w || y >= h {
+	if x >= w || y >= h || x < 0 || y < 0 {
 		return fmt.Errorf("position (%d, %d) is outside the canvas of dimension (%d, %d)", x, y, w, h)
 	}
 	d.canvas[y][x] = r
@@ -33,7 +36,7 @@ func (d *Drawer) DrawRune(r rune, x, y int) error {
 func (d *Drawer) DrawDrawer(e *Drawer, x, y int) error {
 	w, h := d.Dimens()
 	eW, eH := e.Dimens()
-	if x+eW-1 >= w || y+eH-1 >= h {
+	if x+eW-1 >= w || y+eH-1 >= h || x < 0 || y < 0 {
 		return fmt.Errorf("canvas e of dimension (%d, %d) drawn in position (%d, %d) overflows canvas d of dimension (%d, %d)", eW, eH, x, y, w, h)
 	}
 	for i, row := range e.canvas {

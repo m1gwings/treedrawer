@@ -2,6 +2,7 @@ package tree
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"testing"
 	"time"
@@ -81,7 +82,10 @@ type NodeWeird struct{}
 func (nW NodeWeird) Draw() *drawer.Drawer {
 	h := rand.Intn(6) + 1
 	w := rand.Intn(6) + 1
-	d := drawer.NewDrawer(w, h)
+	d, err := drawer.NewDrawer(w, h)
+	if err != nil {
+		log.Fatal(fmt.Errorf("error while allocating new drawer in NodeWeird.Draw: %v", err))
+	}
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			d.DrawRune('*', x, y)

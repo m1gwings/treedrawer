@@ -80,10 +80,13 @@ func stringify(t *Tree) *drawer.Drawer {
 	dVal := t.val.Draw()
 	dValW, dValH := dVal.Dimens()
 	if t.left == nil && t.right == nil {
-		d := drawer.NewDrawer(dValW+2, dValH)
-		err := d.DrawDrawer(dVal, 1, 0)
+		d, err := drawer.NewDrawer(dValW+2, dValH)
 		if err != nil {
-			log.Fatal(fmt.Errorf("error while drawing val with no child: %v", err))
+			log.Fatal(fmt.Errorf("error while allocating new drawer with no children: %v", err))
+		}
+		err = d.DrawDrawer(dVal, 1, 0)
+		if err != nil {
+			log.Fatal(fmt.Errorf("error while drawing val with no children: %v", err))
 		}
 		return d
 	}
@@ -98,8 +101,11 @@ func stringify(t *Tree) *drawer.Drawer {
 		dChildW, dChildH := dChild.Dimens()
 		w := int(math.Max(float64(dValW+2), float64(dChildW)))
 		h := dValH + 1 + dChildH
-		d := drawer.NewDrawer(w, h)
-		err := d.DrawDrawer(dVal, (w-dValW)/2, 0)
+		d, err := drawer.NewDrawer(w, h)
+		if err != nil {
+			log.Fatal(fmt.Errorf("error while allocating new drawer with one child: %v", err))
+		}
+		err = d.DrawDrawer(dVal, (w-dValW)/2, 0)
 		if err != nil {
 			log.Fatal(fmt.Errorf("error while drawing val with one child: %v", err))
 		}
@@ -121,8 +127,11 @@ func stringify(t *Tree) *drawer.Drawer {
 	w := maxChildW*2 + 1
 	maxChildH := int(math.Max(float64(dLeftH), float64(dRightH)))
 	h := dValH + 1 + maxChildH
-	d := drawer.NewDrawer(w, h)
-	err := d.DrawDrawer(dVal, (w-dValW)/2, 0)
+	d, err := drawer.NewDrawer(w, h)
+	if err != nil {
+		log.Fatal(fmt.Errorf("error while allocating new drawer with two children: %v", err))
+	}
+	err = d.DrawDrawer(dVal, (w-dValW)/2, 0)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error while drawing val with two children: %v", err))
 	}
