@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"unicode/utf8"
 
 	"github.com/m1gwings/treedrawer/drawer"
 )
@@ -29,15 +30,17 @@ type NodeString string
 
 // Draw satisfies the NodeValue interface.
 func (s NodeString) Draw() *drawer.Drawer {
-	d, err := drawer.NewDrawer(len(s), 1)
+	d, err := drawer.NewDrawer(utf8.RuneCountInString(string(s)), 1)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error while allocating new drawer in NodeString.Draw: %v", err))
 	}
-	for i, r := range s {
+	i := 0
+	for _, r := range s {
 		err := d.DrawRune(r, i, 0)
 		if err != nil {
 			log.Fatal(fmt.Errorf("error while drawing %d th rune of %s string in NodeString.Draw() method: %v", i, s, err))
 		}
+		i++
 	}
 	return d
 }

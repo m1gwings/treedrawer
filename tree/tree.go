@@ -36,7 +36,7 @@ func (t *Tree) Children() []*Tree {
 	return t.children
 }
 
-// Child returns the ith child of t.
+// Child returns the i-th child of t.
 func (t *Tree) Child(i int) (child *Tree, err error) {
 	if i < 0 || i >= len(t.children) {
 		return nil, fmt.Errorf("there is no child with index %d", i)

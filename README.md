@@ -1,96 +1,174 @@
 # treedrawer
-treedrawer is a simple go module that will help you to visualize binary trees in the command line.
-# Motivation
-I started to build this module by trying to solve an exercise on "The Go Programming Language". The task was to implement the String() function of a binary tree.
-# Code structure
-This module has two sub-packages:
-* treedrawer/**tree**
-* treedrawer/**drawer**
-
-**tree** provides a simple representation of a binary tree:
+**treedrawer** is a Go module that will help you drawing trees to console like the one below.
 ```
-// Tree describes the node of a tree with atmost two children.
-type Tree struct {
-	val                 int64
-	left, right, parent *Tree
-}
+                                    ╭─╮                                    
+                                    │9│                                    
+                                    ╰┬╯                                    
+                   ╭─────────────────┴─────────────┬─────────────┬───┬───╮ 
+        ╭──────────┴─────────╮                    ╭┴╮           ╭┴╮ ╭┴╮ ╭┴╮
+        │I can handle strings│                    │1│           │2│ │3│ │4│
+        ╰──────────┬─────────╯                    ╰┬╯           ╰─╯ ╰─╯ ╰─╯
+                   │                      ╭─────┬──┴─────╮                 
+  ╭────────────────┴────────────────╮   ╭─┴─╮ ╭─┴╮  ╭────┴───╮             
+  │with as many children as you want│   │124│ │13│  │a string│             
+  ╰────────────────┬────────────────╯   ╰───╯ ╰──╯  ╰────────╯             
+                   │                                                       
+   ╭───────────────┴───────────────╮                                       
+   │with as many layers as you want│                                       
+   ╰───────────────┬───────────────╯                                       
+                   │                                                       
+ ╭─────────────────┴─────────────────╮                                     
+ │actually I can handle everything...│                                     
+ ╰─────────────────┬─────────────────╯                                     
+                   │                                                       
+╭──────────────────┴──────────────────╮                                    
+│...that satisfies NodeValue interface│                                    
+╰─────────────────────────────────────╯                                    
 ```
-
-**drawer** is a very simple "unicode-canvas" on which you can draw runes representing unicode characters or another whole canvas specifying the coordinates of the upper-left corner.
-
----
-If you run the following in the root directory:
-```
-go build .
-```
-
-you will get a binary that prints random trees to give you an idea.
-```
-./treedrawer
-
-        14         
-         │         
-        37         
-    ╭────┴────╮    
-   97        29    
-    │      ╭──┴──╮ 
-   12      47   24 
-```
-
-With the **-l** flag you can specify the maximum number of layers of the random tree
-```
-./treedrawer -l 3
-
-   71    
-    │    
-   60    
- ╭──┴──╮ 
- 45   51 
-```
-# Import
-In order to use the tree API below import the following:
-```
+## Import
+```go
 import "github.com/m1gwings/treedrawer/tree"
 ```
-# API
-## Building the tree
-### func NewTree(val int64) *Tree
-NewTree is the default constructor for Tree.
+## Quick start
+```sh
+# Assume the following code is in example.go file
+$ cat example.go
 ```
-t := tree.NewTree(2)
-```
-### func (t *Tree) AddLeft(val int64)
-AddLeft adds a left child to the current node which will held val.
-```
-t.AddLeft(5)
-```
-### func (t *Tree) AddRight(val int64)
-AddRight adds a right child to the current node which will held val.
-```
-t.AddRight(3)
-```
-## Printing the tree
-Tree type satisfies the Stringer interface, you can easily use fmt package to get results in the console.
-```
-fmt.Println(t)
+```go
+package main
 
-   2   
- ╭─┴─╮ 
- 5   3 
+import (
+	"fmt"
+
+	"github.com/m1gwings/treedrawer/tree"
+)
+
+func main() {
+	// Creating a tree with 5 as the value of the root node
+	t := tree.NewTree(tree.NodeInt64(5))
+
+	// Adding children
+	t.AddChild(tree.NodeString("adding a string"))
+	t.AddChild(tree.NodeInt64(4))
+	t.AddChild(tree.NodeInt64(3))
+
+	// Drawing the tree
+	fmt.Println(t)
+}
 ```
-## Retreiving values from the tree
-### func (t *Tree) Val() int64
-Val returns the value held by the current node of the tree.
-## Navigating the tree
-### func (t *Tree) Left() (ok bool)
-Left moves the current node to its left child.
-Returns false if there is no left child, otherwise it returns true.
-### func (t *Tree) Right() (ok bool)
-Right moves the current node to its right child.
-Returns false if there is no right child, otherwise it returns true.
-### func (t *Tree) Parent() (ok bool)
-Parent moves the current node to its parent.
-Returns false if this node is the root of the whole tree, otherwise it returns true.
-## Extra
-### func Rand(n int) *Tree
-Rand returns the root of a random three with at most n layers.
+```sh
+$ go run example.go
+```
+```sh
+           ╭─╮           
+           │5│           
+           ╰┬╯           
+        ╭───┴──────┬───╮ 
+╭───────┴───────╮ ╭┴╮ ╭┴╮
+│adding a string│ │4│ │3│
+╰───────────────╯ ╰─╯ ╰─╯
+
+```
+## Usage
+### Building the tree
+Creating the tree with 1 as the value of the root node
+```go
+t := tree.NewTree(tree.NodeInt64(1))
+```
+Adding the first child to t with value 2
+```go
+t.AddChild(tree.NodeInt64(2))
+```
+Adding more children
+```go
+t.AddChild(tree.NodeInt64(3))
+t.AddChild(tree.NodeInt64(4))
+t.AddChild(tree.NodeInt64(5))
+```
+We've just built the tree below
+```
+      ╭─╮      
+      │1│      
+      ╰┬╯      
+ ╭───┬─┴─┬───╮ 
+╭┴╮ ╭┴╮ ╭┴╮ ╭┴╮
+│2│ │3│ │4│ │5│
+╰─╯ ╰─╯ ╰─╯ ╰─╯
+
+```
+### Navigating the tree
+Navigating to first child of t (we're still working with the tree above)
+```go
+// This method returns an error if the i-th child does not exist
+// in this case i = 0
+tFirstChild, err := t.Child(0)
+```
+Adding children to first child
+```go
+tFirstChild.AddChild(tree.NodeInt64(6))
+tFirstChild.AddChild(tree.NodeInt64(7))
+tFirstChild.AddChild(tree.NodeInt64(8))
+```
+Going back to parent
+```go
+// ok would be equal to false if tFirstChild were the root of the tree
+tFirstChildParent, ok := tFirstChild.Parent()
+
+_ := tFirstChildParent == t // true, we have gone back to the root of the tree
+```
+Navigating to third child of t
+```go
+tThirdChild, err := t.Child(2)
+```
+Adding a string child to third child
+```go
+tThirdChild.AddChild(tree.NodeString("I'm a string"))
+```
+Getting a pointer to the root of the tree
+```go
+tRoot := tThirdChild.Root()
+
+_ := tRoot == t // true
+```
+Now the tree looks like this
+```
+                ╭─╮                
+                │1│                
+                ╰┬╯                
+     ╭───────┬───┴─────┬─────────╮ 
+    ╭┴╮     ╭┴╮       ╭┴╮       ╭┴╮
+    │2│     │3│       │4│       │5│
+    ╰┬╯     ╰─╯       ╰┬╯       ╰─╯
+ ╭───┼───╮             │           
+╭┴╮ ╭┴╮ ╭┴╮     ╭──────┴─────╮     
+│6│ │7│ │8│     │I'm a string│     
+╰─╯ ╰─╯ ╰─╯     ╰────────────╯     
+
+```
+### Getting and setting values from the tree
+Getting the value of a node
+```go
+v := t.Val()
+```
+Setting the value of a node
+```go
+t.SetVal(tree.NodeInt64(3))
+```
+### Drawing the tree
+*tree.Tree implements the Stringer interface, just use fmt to draw trees to console
+```go
+fmt.Println(t)
+```
+### Implementing NodeValue interface
+## Examples
+## Known issues
+- Emojis are larger than normal characters
+```go
+fmt.Println(tree.NewTree(tree.NodeString("emojis are buggy 🤪")))
+```
+```
+╭──────────────────╮ 
+│emojis are buggy 🤪│ 
+╰──────────────────╯ 
+
+```
