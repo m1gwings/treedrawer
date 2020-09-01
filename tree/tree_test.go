@@ -94,7 +94,15 @@ func (nW NodeWeird) Draw() *drawer.Drawer {
 	return d
 }
 
-func TestString(t *testing.T) {
+func TestParentBiggerThanBothChildren(t *testing.T) {
+	tr := NewTree(NodeString("qwertyuiopasdfghjkl"))
+	tr.AddLeft(NodeString("sa"))
+	tr.AddRight(NodeString("as"))
+
+	fmt.Println(tr)
+}
+
+func TestNodeWeird(t *testing.T) {
 	rand.Seed(time.Now().Unix())
 	tr := NewTree(NodeWeird{})
 	tr.AddLeft(NodeWeird{})
