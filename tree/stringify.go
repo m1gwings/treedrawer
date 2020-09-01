@@ -171,9 +171,11 @@ func stringify(t *Tree) *drawer.Drawer {
 		log.Fatal(fmt.Errorf("childrenMiddle is not sorted"))
 	}
 
+	// w is the width of the final drawer and is equal to the maximum between dValW+2 and childrenW
 	var w int
 	if dValW+2 > childrenW {
 		w = dValW + 2
+		// If parent width is greater than children width, children get centered by shifing each child
 		for i := 0; i < nChildren; i++ {
 			childrenLeft[i] += (w - childrenW) / 2
 			childrenMiddle[i] += (w - childrenW) / 2
