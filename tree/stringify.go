@@ -56,7 +56,7 @@ func stringify(t *Tree) *drawer.Drawer {
 
 		// w and h represent respectively width and height of the drawer to return
 		// w is the max between the width of dVal + 2 (considering the box) and the width of the one child
-		// h is equal to the height of dVal + 2 (considering the box) + 1 (considreing the "pipe") + the height of dChild
+		// h is equal to the height of dVal + 2 (considering the box) + 1 (considering the "pipe") + the height of dChild
 		w := int(math.Max(float64(dValW+2), float64(dChildW)))
 		// Ensuring that w is odd
 		w += 1 - w%2
@@ -175,7 +175,7 @@ func stringify(t *Tree) *drawer.Drawer {
 	var w int
 	if dValW+2 > childrenW {
 		w = dValW + 2
-		// If parent width is greater than children width, children get centered by shifing each child
+		// If parent width is greater than children width, children get centered by shifting each child
 		for i := 0; i < nChildren; i++ {
 			childrenLeft[i] += (w - childrenW) / 2
 			childrenMiddle[i] += (w - childrenW) / 2

@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// Tree describes the node of a tree with atmost two children.
+// Tree describes the node of a tree with almost two children.
 type Tree struct {
 	val      NodeValue
 	parent   *Tree

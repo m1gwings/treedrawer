@@ -8,11 +8,11 @@ import (
 func TestNewDrawer(t *testing.T) {
 	_, err := NewDrawer(-1, 1)
 	if err == nil {
-		t.Errorf("you shouldn't be able to create a drawer wiht negative width")
+		t.Errorf("you shouldn't be able to create a drawer with negative width")
 	}
 	_, err = NewDrawer(1, -1)
 	if err == nil {
-		t.Errorf("you shouldn't be able to create a drawer wiht negative height")
+		t.Errorf("you shouldn't be able to create a drawer with negative height")
 	}
 	_, err = NewDrawer(1, 5)
 	if err != nil {
