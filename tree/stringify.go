@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"sort"
 
 	"github.com/m1gwings/treedrawer/drawer"
 )
@@ -17,9 +18,10 @@ func stringify(t *Tree) *drawer.Drawer {
 	dValW, dValH := dVal.Dimens()
 
 	// No children
-	if t.left == nil && t.right == nil {
+	if len(t.Children()) == 0 {
 		// Allocating new drawer to return
-		d, err := drawer.NewDrawer(dValW+2, dValH+2)
+		// Ensuring that width is odd
+		d, err := drawer.NewDrawer(dValW+2+1-dValW%2, dValH+2)
 		if err != nil {
 			log.Fatal(fmt.Errorf("error while allocating new drawer with no children: %v", err))
 		}
@@ -39,16 +41,16 @@ func stringify(t *Tree) *drawer.Drawer {
 	}
 
 	// One child
-	if (t.left != nil && t.right == nil) || (t.left == nil && t.right != nil) {
+	if len(t.Children()) == 1 {
 		// Drawer of the child
 		var dChild *drawer.Drawer
 
-		// Recursively calling stringify of the child which is not nil and initializing dChild drawer
-		if t.left != nil {
-			dChild = stringify(t.left)
-		} else {
-			dChild = stringify(t.right)
+		// Recursively calling stringify of the child and initializing dChild drawer
+		tChild, err := t.Child(0)
+		if err != nil {
+			log.Fatal(fmt.Errorf("error while getting child 0 with one child: %v", err))
 		}
+		dChild = stringify(tChild)
 		// Getting dimensions of dChild drawer
 		dChildW, dChildH := dChild.Dimens()
 
@@ -56,6 +58,8 @@ func stringify(t *Tree) *drawer.Drawer {
 		// w is the max between the width of dVal + 2 (considering the box) and the width of the one child
 		// h is equal to the height of dVal + 2 (considering the box) + 1 (considreing the "pipe") + the height of dChild
 		w := int(math.Max(float64(dValW+2), float64(dChildW)))
+		// Ensuring that w is odd
+		w += 1 - w%2
 		h := dValH + 3 + dChildH
 
 		// Allocating new drawer to return
@@ -113,29 +117,76 @@ func stringify(t *Tree) *drawer.Drawer {
 		return d
 	}
 
-	// Two children
+	// More children
 
-	// Recursively calling stringify of the children and initializing dLeft and dRight drawer
-	dLeft, dRight := stringify(t.left), stringify(t.right)
-	// Getting dimensions of dLeft and dRight
-	dLeftW, dLeftH := dLeft.Dimens()
-	dRightW, dRightH := dRight.Dimens()
+	// nChildren is the number of children of t
+	nChildren := len(t.Children())
+	// dChildren stores the result of recursively call of stringify for each child
+	dChildren := make([]*drawer.Drawer, 0, nChildren)
+	// childrenLeft is a slice with the x coordinate of the upper-left corner of each child drawer to draw onto d
+	childrenLeft := make([]int, 0, nChildren)
+	// childrenMiddle is a slice with the x coordinate of the middle of each child drawer to draw onto d
+	childrenMiddle := make([]int, 0, nChildren)
+	// childrenW is the width required to draw children
+	// it is incremented child by child to obtain the x coordinate of the upper-left corner for each child
+	childrenW := 0
+	// maxChildH is the maximum height of a child
+	maxChildH := 0
 
-	// maxChildW is the max between the width of left child, the width of right child and half the width of the parent + 1
-	maxNodeW := int(math.Max(float64(dLeftW), math.Max(float64(dRightW), float64(dValW/2+1))))
-	// w represents the width of the drawer to return and is equal to maxChildW*2+1 to keep dVal in the center
-	// and give the same space to each child
-	w := maxNodeW*2 + 1
-	// maxChildH is the max between the height of the left child and the height of the right child
-	maxChildH := int(math.Max(float64(dLeftH), float64(dRightH)))
-	// h represents the height of the drawer to return and is equal to dValH + 3 (considering the box around and the pipe)
-	// + maxChildH
+	// Iterates over children to calculate maxChildH, childrenLeft and childrenMiddle
+	for i, tChild := range t.Children() {
+		dChild := stringify(tChild)
+		dChildren = append(dChildren, dChild)
+		dChildW, dChildH := dChild.Dimens()
+		maxChildH = int(math.Max(float64(maxChildH), float64(dChildH)))
+
+		if i == nChildren-1 {
+			// When the child is the last
+			if (childrenW+dChildW)%2 == 1 {
+				// If final childrenW (notice that childrenW gets incremented at the end) is odd than we just have to add dChildW
+				childrenLeft = append(childrenLeft, childrenW)
+				childrenMiddle = append(childrenMiddle, childrenW+dChildW/2)
+				childrenW += dChildW
+			} else {
+				// Otherwise we add one more space to make childrenW odd
+				childrenLeft = append(childrenLeft, childrenW+1)
+				childrenMiddle = append(childrenMiddle, childrenW+1+dChildW/2)
+				childrenW += dChildW + 1
+			}
+		} else {
+			// When the child isn't the last just add it to the left of the child before with a space in between
+			childrenLeft = append(childrenLeft, childrenW)
+			childrenMiddle = append(childrenMiddle, childrenW+dChildW/2)
+			childrenW += dChildW + 1
+		}
+	}
+
+	// Assert that childrenLeft and childrenMiddle are sorted, this is required because we are going to use binary search later
+	sorted := sort.SliceIsSorted(childrenLeft, func(i, j int) bool { return childrenLeft[i] < childrenLeft[j] })
+	if !sorted {
+		log.Fatal(fmt.Errorf("childrenLeft is not sorted"))
+	}
+	sorted = sort.SliceIsSorted(childrenMiddle, func(i, j int) bool { return childrenMiddle[i] < childrenMiddle[j] })
+	if !sorted {
+		log.Fatal(fmt.Errorf("childrenMiddle is not sorted"))
+	}
+
+	var w int
+	if dValW+2 > childrenW {
+		w = dValW + 2
+		for i := 0; i < nChildren; i++ {
+			childrenLeft[i] += (w - childrenW) / 2
+			childrenMiddle[i] += (w - childrenW) / 2
+		}
+	} else {
+		w = childrenW
+	}
 	h := dValH + 3 + maxChildH
 
 	// Allocating new drawer to return
 	d, err := drawer.NewDrawer(w, h)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error while allocating new drawer with two children: %v", err))
+		log.Fatal(fmt.Errorf("error while allocating new drawer with more children: %v", err))
 	}
 
 	// Drawing dVal onto the drawer to return with x in (w-dValW)/2 to put dVal in the middle
@@ -143,7 +194,7 @@ func stringify(t *Tree) *drawer.Drawer {
 	// and y in 1 (considering the box)
 	err = d.DrawDrawer(dVal, (w-dValW)/2, 1)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing val with two children: %v", err))
+		log.Fatal(fmt.Errorf("error while drawing val with more children: %v", err))
 	}
 
 	// Adding a box in the drawer to return, around where the dVal drawer has been drawn
@@ -151,60 +202,62 @@ func stringify(t *Tree) *drawer.Drawer {
 	// end coordinates are just start coordinates plus respectively dValW+1 and dValH+1 in order to not overwrite
 	err = addBoxAround(d, (w-dValW)/2-1, 0, (w-dValW)/2+dValW, dValH+1)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error while adding box with two children: %v", err))
+		log.Fatal(fmt.Errorf("error while adding box with more children: %v", err))
 	}
 
-	// Drawing the pipe onto the drawer to return with x in the middle
-	// and y in dValH + 2 (considering the box)
-	err = d.DrawRune('┴', w/2, dValH+2)
-	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing ┴ rune with two childern: %v", err))
-	}
-	// Drawing the pipe onto the drawer with a loop
-	for i := 1; i <= maxNodeW/2; i++ {
-		err = d.DrawRune('─', w/2-i, dValH+2)
+	// Drawing children onto the drawer to return
+	for i := 0; i < nChildren; i++ {
+		err = d.DrawDrawer(dChildren[i], childrenLeft[i], dValH+3)
 		if err != nil {
-			log.Fatal(fmt.Errorf("error while drawing ─ rune with two childern with negative i: %v", err))
-		}
-		err = d.DrawRune('─', w/2+i, dValH+2)
-		if err != nil {
-			log.Fatal(fmt.Errorf("error while drawing ─ rune with two childern with positive i: %v", err))
+			log.Fatal(fmt.Errorf("error while drawing %d child: %v", i, err))
 		}
 	}
-	// Drawing left and right end of pipe, respectively at the middle of each child area
-	err = d.DrawRune('╭', w/2-maxNodeW/2-1, dValH+2)
-	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing ╭ rune with two children: %v", err))
-	}
-	err = d.DrawRune('╮', w/2+maxNodeW/2+1, dValH+2)
-	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing ╮ rune with two children: %v", err))
-	}
 
-	// Drawing dLeft and dRight onto the drawer to return, each one is centered in its child area
-	err = d.DrawDrawer(dLeft, (maxNodeW-dLeftW)/2, dValH+3)
-	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing left child: %v", err))
-	}
-	// The weird expression that you see as x coordinate fixes an alignment problem
-	// preferring the position one unit on the right where there is no perfect center
-	err = d.DrawDrawer(dRight, maxNodeW*2+1-(maxNodeW-dRightW)/2-dRightW, dValH+3)
-	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing right child: %v", err))
-	}
-
-	// Drawing links, this must be the latest things to be drawn because they overwrite dVal, dLeft and dRight
+	// Drawing upper-link ┬ under the parent
 	err = d.DrawRune('┬', w/2, dValH+1)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing ┬ link with two children: %v", err))
+		log.Fatal(fmt.Errorf("error while drawing upper-link ┬ under the parent: %v", err))
 	}
-	err = d.DrawRune('┴', w/2-maxNodeW/2-1, dValH+3)
-	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing left ┴ link with two children: %v", err))
+
+	// Drawing lower-link ┴ above the children
+	for i, x := range childrenMiddle {
+		err = d.DrawRune('┴', x, dValH+3)
+		if err != nil {
+			log.Fatal(fmt.Errorf("error while drawing lower-link ┴ above the %dth child: %v", i, err))
+		}
 	}
-	err = d.DrawRune('┴', w/2+maxNodeW/2+1, dValH+3)
+
+	// Drawing left-corner ╭ above the left most child
+	err = d.DrawRune('╭', childrenMiddle[0], dValH+2)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error while drawing right ┴ link with two children: %v", err))
+		log.Fatal(fmt.Errorf("error while drawing left-corner ╭ above the left most child: %v", err))
+	}
+	// Drawing right-corner ╮ above the right most child
+	err = d.DrawRune('╮', childrenMiddle[len(childrenMiddle)-1], dValH+2)
+	if err != nil {
+		log.Fatal(fmt.Errorf("error while drawing right-corner ╮ above the right most child: %v", err))
+	}
+
+	// Finish to connect the pipe
+	for x := childrenMiddle[0] + 1; x < childrenMiddle[len(childrenMiddle)-1]; x++ {
+		underParent := x == w/2
+		shouldBeAt := sort.SearchInts(childrenMiddle, x)
+		aboveChild := shouldBeAt < len(childrenMiddle) && childrenMiddle[shouldBeAt] == x
+		var connection rune
+		switch {
+		case underParent && aboveChild:
+			connection = '┼'
+		case underParent:
+			connection = '┴'
+		case aboveChild:
+			connection = '┬'
+		default:
+			connection = '─'
+		}
+		err = d.DrawRune(connection, x, dValH+2)
+		if err != nil {
+			log.Fatal(fmt.Errorf("error while drawing %c at position %d to finish connection: %v", connection, x, err))
+		}
 	}
 
 	return d

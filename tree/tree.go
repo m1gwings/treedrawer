@@ -1,9 +1,14 @@
 package tree
 
+import (
+	"fmt"
+)
+
 // Tree describes the node of a tree with atmost two children.
 type Tree struct {
-	val                 NodeValue
-	left, right, parent *Tree
+	val      NodeValue
+	parent   *Tree
+	children []*Tree
 }
 
 // Val returns the value held by the current node of the tree.
@@ -11,24 +16,9 @@ func (t *Tree) Val() NodeValue {
 	return t.val
 }
 
-// Left returns a pointer to the left child of t.
-// It also returns true if the child exists or false otherwise.
-// If the child doesn't exist the l *Tree returned is equal to t *Tree
-func (t *Tree) Left() (l *Tree, ok bool) {
-	if t.left == nil {
-		return t, false
-	}
-	return t.left, true
-}
-
-// Right returns a pointer to the right child of t.
-// It also returns true if the child exists or false otherwise.
-// If the child doesn't exist the r *Tree returned is equal to t *Tree
-func (t *Tree) Right() (r *Tree, ok bool) {
-	if t.right == nil {
-		return t, false
-	}
-	return t.right, true
+// SetVal sets the value of the current node of the tree.
+func (t *Tree) SetVal(n NodeValue) {
+	t.val = n
 }
 
 // Parent returns a pointer to the parent of t.
@@ -41,19 +31,27 @@ func (t *Tree) Parent() (p *Tree, ok bool) {
 	return t.parent, true
 }
 
+// Children returns a slice of pointers to children of t.
+func (t *Tree) Children() []*Tree {
+	return t.children
+}
+
+// Child returns the ith child of t.
+func (t *Tree) Child(i int) (child *Tree, err error) {
+	if i < 0 || i >= len(t.children) {
+		return nil, fmt.Errorf("there is no child with index %d", i)
+	}
+	return t.children[i], nil
+}
+
+// AddChild adds a child to t with value n.
+func (t *Tree) AddChild(n NodeValue) {
+	t.children = append(t.children, &Tree{val: n, parent: t})
+}
+
 // NewTree is the default constructor for Tree.
 func NewTree(val NodeValue) *Tree {
 	return &Tree{val: val}
-}
-
-// AddLeft adds a left child to the current node which will held val.
-func (t *Tree) AddLeft(val NodeValue) {
-	t.left = &Tree{val: val, parent: t}
-}
-
-// AddRight adds a right child to the current node which will held val.
-func (t *Tree) AddRight(val NodeValue) {
-	t.right = &Tree{val: val, parent: t}
 }
 
 // Root returns a pointer to the root of the tree

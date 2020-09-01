@@ -12,19 +12,19 @@ import (
 
 func TestTreeBuilding(t *testing.T) {
 	tr := NewTree(NodeInt64(5))
-	tr.AddLeft(NodeInt64(3))
-	tr.AddRight(NodeInt64(4))
+	tr.AddChild(NodeInt64(3))
+	tr.AddChild(NodeInt64(4))
 
-	tr, ok := tr.Right()
-	if !ok {
-		t.Errorf("there should be a right child, expected true, received %t", ok)
+	tr, err := tr.Child(1)
+	if err != nil {
+		t.Errorf("there should be a right child: %v", err)
 	}
 	v := tr.Val()
 	if v != NodeInt64(4) {
 		t.Errorf("the value in the right child should be 4, received %d", v)
 	}
 
-	tr, ok = tr.Parent()
+	tr, ok := tr.Parent()
 	if !ok {
 		t.Errorf("there should be a parent, expected true, received %t", ok)
 	}
@@ -33,9 +33,9 @@ func TestTreeBuilding(t *testing.T) {
 		t.Errorf("the value in the root should be 5, received %d", v)
 	}
 
-	tr, ok = tr.Left()
-	if !ok {
-		t.Errorf("there should be a left child, expected true, received %t", ok)
+	tr, err = tr.Child(0)
+	if err != nil {
+		t.Errorf("there should be a left child: %v", err)
 	}
 	v = tr.Val()
 	if v != NodeInt64(3) {
@@ -47,25 +47,25 @@ func TestTreeBuilding(t *testing.T) {
 
 func TestRoot(t *testing.T) {
 	tr := NewTree(NodeInt64(5))
-	tr.AddLeft(NodeInt64(4))
-	tr, ok := tr.Left()
-	if !ok {
-		t.Errorf("there should be a left child, expected true, received %t", ok)
+	tr.AddChild(NodeInt64(4))
+	tr, err := tr.Child(0)
+	if err != nil {
+		t.Errorf("there should be a child: %v", err)
 	}
-	tr.AddLeft(NodeInt64(3))
-	tr, ok = tr.Left()
-	if !ok {
-		t.Errorf("there should be a left child, expected true, received %t", ok)
+	tr.AddChild(NodeInt64(3))
+	tr, err = tr.Child(0)
+	if err != nil {
+		t.Errorf("there should be a child: %v", err)
 	}
-	tr.AddLeft(NodeInt64(2))
-	tr, ok = tr.Left()
-	if !ok {
-		t.Errorf("there should be a left child, expected true, received %t", ok)
+	tr.AddChild(NodeInt64(2))
+	tr, err = tr.Child(0)
+	if err != nil {
+		t.Errorf("there should be a child: %v", err)
 	}
-	tr.AddLeft(NodeInt64(1))
-	tr, ok = tr.Left()
-	if !ok {
-		t.Errorf("there should be a left child, expected true, received %t", ok)
+	tr.AddChild(NodeInt64(1))
+	tr, err = tr.Child(0)
+	if err != nil {
+		t.Errorf("there should be a child: %v", err)
 	}
 
 	root := tr.Root()
@@ -96,17 +96,24 @@ func (nW NodeWeird) Draw() *drawer.Drawer {
 
 func TestParentBiggerThanBothChildren(t *testing.T) {
 	tr := NewTree(NodeString("qwertyuiopasdfghjkl"))
-	tr.AddLeft(NodeString("sa"))
-	tr.AddRight(NodeString("as"))
+	tr.AddChild(NodeString("sa"))
+	tr.AddChild(NodeString("as"))
 
 	fmt.Println(tr)
 }
 
 func TestNodeWeird(t *testing.T) {
 	rand.Seed(time.Now().Unix())
-	tr := NewTree(NodeWeird{})
-	tr.AddLeft(NodeWeird{})
-	tr.AddRight(NodeWeird{})
 
-	fmt.Println(tr)
+	fmt.Println(WeirdTree(5))
+}
+
+func WeirdTree(depth int) *Tree {
+	t := NewTree(NodeWeird{})
+	nChildren := rand.Intn(depth)
+	for i := 0; i < nChildren; i++ {
+		t.children = append(t.children, WeirdTree(depth-1))
+		t.children[i].val = NodeWeird{}
+	}
+	return t
 }
