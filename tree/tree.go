@@ -45,8 +45,11 @@ func (t *Tree) Child(i int) (child *Tree, err error) {
 }
 
 // AddChild adds a child to t with value n.
-func (t *Tree) AddChild(n NodeValue) {
-	t.children = append(t.children, &Tree{val: n, parent: t})
+// Returns the child that has been added.
+func (t *Tree) AddChild(n NodeValue) (tChild *Tree) {
+	tChild = &Tree{val: n, parent: t}
+	t.children = append(t.children, tChild)
+	return
 }
 
 // NewTree is the default constructor for Tree.

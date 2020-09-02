@@ -28,6 +28,8 @@ func (i NodeInt64) Draw() *drawer.Drawer {
 // NodeString is the default type for drawing strings on the tree.
 type NodeString string
 
+// TODO \n causes drawing bug, implement a version of this method that can work with lines
+
 // Draw satisfies the NodeValue interface.
 func (s NodeString) Draw() *drawer.Drawer {
 	d, err := drawer.NewDrawer(utf8.RuneCountInString(string(s)), 1)

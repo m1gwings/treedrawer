@@ -9,9 +9,18 @@ type Drawer struct {
 
 // NewDrawer returns a new Drawer with width w and height h.
 func NewDrawer(w, h int) (*Drawer, error) {
-	if w < 1 || h < 1 {
-		return nil, fmt.Errorf("width and height must be at least 1, received %d %d", w, h)
+	if w < 0 || h < 0 {
+		return nil, fmt.Errorf("width and height must be non-negative, received %d %d", w, h)
 	}
+
+	// Ensures that the drawer is at least 1 by 1 to avoid drawing issues
+	if w == 0 {
+		w++
+	}
+	if h == 0 {
+		h++
+	}
+
 	d := new(Drawer)
 	d.canvas = make([][]rune, h)
 	for i := range d.canvas {

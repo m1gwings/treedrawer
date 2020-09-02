@@ -59,7 +59,7 @@ func main() {
 ```sh
 $ go run example.go
 ```
-```sh
+```
            ╭─╮           
            │5│           
            ╰┬╯           
@@ -234,6 +234,133 @@ fmt.Println(t)
 
 ```
 ## Examples
+You can find these examples inside the ./examples folder
+### HTML tree
+```sh
+# Assume the following code is in htmltree.go file
+$ cat htmltree.go
+```
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"strings"
+
+	"github.com/m1gwings/treedrawer/tree"
+	"golang.org/x/net/html"
+)
+
+func main() {
+	s := `<p>Links:</p><ul><li><a href="foo">Foo</a><li><a href="/bar/baz">BarBaz</a></ul>`
+	doc, err := html.Parse(strings.NewReader(s))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t := tree.NewTree(tree.NodeString(""))
+
+	var f func(*html.Node, *tree.Tree)
+	f = func(n *html.Node, t *tree.Tree) {
+		t.SetVal(tree.NodeString(n.Data))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			tChild := t.AddChild(tree.NodeString(""))
+			f(c, tChild)
+		}
+	}
+	// Starting from FirstChild because the DocumentRoot has an empty Val
+	f(doc.FirstChild, t)
+
+	fmt.Println(t)
+}
+```
+```sh
+$ go run htmltree.go
+```
+```
+             ╭────╮              
+             │html│              
+             ╰──┬─╯              
+   ╭────────────┴───╮            
+╭──┴─╮           ╭──┴─╮          
+│head│           │body│          
+╰────╯           ╰──┬─╯          
+            ╭───────┴────╮       
+           ╭┴╮         ╭─┴╮      
+           │p│         │ul│      
+           ╰┬╯         ╰─┬╯      
+            │       ╭────┴──╮    
+        ╭───┴──╮  ╭─┴╮    ╭─┴╮   
+        │Links:│  │li│    │li│   
+        ╰──────╯  ╰─┬╯    ╰─┬╯   
+                    │       │    
+                   ╭┴╮     ╭┴╮   
+                   │a│     │a│   
+                   ╰┬╯     ╰┬╯   
+                    │       │    
+                  ╭─┴─╮ ╭───┴──╮ 
+                  │Foo│ │BarBaz│ 
+                  ╰───╯ ╰──────╯ 
+
+```
+### File system tree
+```sh
+# Assume the following code is in filesystemtree.go file
+$ cat filesystemtree.go
+```
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"strings"
+
+	"github.com/m1gwings/treedrawer/tree"
+	"golang.org/x/net/html"
+)
+
+func main() {
+	s := `<p>Links:</p><ul><li><a href="foo">Foo</a><li><a href="/bar/baz">BarBaz</a></ul>`
+	doc, err := html.Parse(strings.NewReader(s))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t := tree.NewTree(tree.NodeString(""))
+
+	var f func(*html.Node, *tree.Tree)
+	f = func(n *html.Node, t *tree.Tree) {
+		t.SetVal(tree.NodeString(n.Data))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			tChild := t.AddChild(tree.NodeString(""))
+			f(c, tChild)
+		}
+	}
+	// Starting from FirstChild because the DocumentRoot has an empty Val
+	f(doc.FirstChild, t)
+
+	fmt.Println(t)
+}
+```
+```sh
+$ go run filesystemtree.go
+```
+```
+                                                                                ╭──────────╮                                                                                 
+                                                                                │treedrawer│                                                                                 
+                                                                                ╰─────┬────╯                                                                                 
+     ╭──────────────────────┬─────────────────────┬───────────────────┬───────────────┴───┬───────────────────────────────────────────╮                                      
+╭────┴────╮            ╭────┴───╮             ╭───┴───╮           ╭───┴──╮            ╭───┴──╮                                     ╭──┴─╮                                    
+│README.md│            │examples│             │LICENSE│           │drawer│            │go.sum│                                     │tree│                                    
+╰─────────╯            ╰────┬───╯             ╰───────╯           ╰───┬──╯            ╰──────╯                                     ╰──┬─╯                                    
+                  ╭─────────┴──────╮                            ╭─────┴────────╮                         ╭─────────────────┬──────────┴─┬────────────┬───────────────╮       
+            ╭─────┴─────╮ ╭────────┴────────╮           ╭───────┴──────╮  ╭────┴────╮           ╭────────┴───────╮  ╭──────┴─────╮  ╭───┴───╮ ╭──────┴──────╮ ╭──────┴─────╮ 
+            │htmltree.go│ │filesystemtree.go│           │drawer_test.go│  │drawer.go│           │examples_test.go│  │stringify.go│  │tree.go│ │nodevalues.go│ │tree_test.go│ 
+            ╰───────────╯ ╰─────────────────╯           ╰──────────────╯  ╰─────────╯           ╰────────────────╯  ╰────────────╯  ╰───────╯ ╰─────────────╯ ╰────────────╯ 
+
+```
 ## Known issues 🐛
 - Emojis are larger than normal characters
 ```go
