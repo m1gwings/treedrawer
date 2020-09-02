@@ -58,4 +58,18 @@ func (s NodeString) Draw() *drawer.Drawer {
 	return d
 }
 
-// TODO Add NodeValue wrappers for all the built-in types
+// NodeFloat64 is the default type for drawing float64s on the tree.
+type NodeFloat64 float64
+
+// Draw satisfies the NodeValue interface.
+func (f NodeFloat64) Draw() *drawer.Drawer {
+	return NodeString(fmt.Sprintf("%v", f)).Draw()
+}
+
+// NodeComplex128 is the default type for drawing complex128s on the tree.
+type NodeComplex128 complex128
+
+// Draw satisfies the NodeValue interface.
+func (z NodeComplex128) Draw() *drawer.Drawer {
+	return NodeString(fmt.Sprintf("%v", z)).Draw()
+}

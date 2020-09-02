@@ -107,6 +107,14 @@ func TestNodeStringWithNewLine(t *testing.T) {
 	fmt.Println(tr)
 }
 
+func TestBuiltInNodes(t *testing.T) {
+	tr := NewTree(NodeInt64(1))
+	tr.AddChild(NodeFloat64(1.5))
+	tr.AddChild(NodeComplex128(1 + 1i))
+	tr.AddChild(NodeString("string"))
+	fmt.Println(tr)
+}
+
 func TestNodeWeird(t *testing.T) {
 	rand.Seed(time.Now().Unix())
 
