@@ -102,6 +102,11 @@ func TestParentBiggerThanBothChildren(t *testing.T) {
 	fmt.Println(tr)
 }
 
+func TestNodeStringWithNewLine(t *testing.T) {
+	tr := NewTree(NodeString("abcd\nab\nababab\n"))
+	fmt.Println(tr)
+}
+
 func TestNodeWeird(t *testing.T) {
 	rand.Seed(time.Now().Unix())
 

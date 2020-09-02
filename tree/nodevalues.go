@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/m1gwings/treedrawer/drawer"
@@ -28,21 +29,33 @@ func (i NodeInt64) Draw() *drawer.Drawer {
 // NodeString is the default type for drawing strings on the tree.
 type NodeString string
 
-// TODO \n causes drawing bug, implement a version of this method that can work with lines
-
 // Draw satisfies the NodeValue interface.
 func (s NodeString) Draw() *drawer.Drawer {
-	d, err := drawer.NewDrawer(utf8.RuneCountInString(string(s)), 1)
+	lines := strings.Split(string(s), "\n")
+	var maxLineLength int
+	for _, line := range lines {
+		realLineLength := utf8.RuneCountInString(line)
+		if realLineLength > maxLineLength {
+			maxLineLength = realLineLength
+		}
+	}
+	d, err := drawer.NewDrawer(maxLineLength, len(lines))
 	if err != nil {
 		log.Fatal(fmt.Errorf("error while allocating new drawer in NodeString.Draw: %v", err))
 	}
-	i := 0
-	for _, r := range s {
-		err := d.DrawRune(r, i, 0)
-		if err != nil {
-			log.Fatal(fmt.Errorf("error while drawing %d th rune of %s string in NodeString.Draw() method: %v", i, s, err))
+	for y, line := range lines {
+		// x is decleared outside and incremented manually because in the for range it would
+		// be incremented depending on bytes and not runes
+		x := 0
+		for _, r := range line {
+			err := d.DrawRune(r, x, y)
+			if err != nil {
+				log.Fatal(fmt.Errorf("error while drawing %d th rune of %s line %d in NodeString.Draw() method: %v", x, s, y, err))
+			}
+			x++
 		}
-		i++
 	}
 	return d
 }
+
+// TODO Add NodeValue wrappers for all the built-in types
