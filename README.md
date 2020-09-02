@@ -155,13 +155,86 @@ Setting the value of a node
 t.SetVal(tree.NodeInt64(3))
 ```
 ### Drawing the tree
-*tree.Tree implements the Stringer interface, just use fmt to draw trees to console
+*tree.Tree implements the Stringer interface, just use package fmt to draw trees to console
 ```go
 fmt.Println(t)
 ```
 ### Implementing NodeValue interface
+The tree can handle every type that satisfies the **NodeValue** interface
+```go
+// NodeValue is the interface that wraps the Draw method.
+//
+// The Draw method allows to convert data into its unicode canvas representation.
+// With the Draw method you can control how your data is going to appear on the tree.
+type NodeValue interface {
+	Draw() *drawer.Drawer
+}
+```
+The wrappers for built-in are defined inside the package treedrawer/tree like tree.NodeInt64 or tree.NodeString used above, so you don't need to worry about them.  
+Continue reading this section if you want to draw custom types instead.
+- Importing treedrawer/drawer
+
+First of all we need access to the drawer.Drawer type. Just import the following
+```go
+import "github.com/m1gwings/treedrawer/drawer"
+```
+drawer.Drawer under the hood is just a 2D slice of runes on which you can draw a rune specifying its coordinates or another entire drawer.Drawer specifying the coordinates of its upper-left corner.
+- Defining a custom type
+```go
+type NodeAsterisk struct {
+	Width, Height int
+}
+```
+NodeAsterisk represents a rectangle of width NodeAsterisk.Width and height NodeAsterisk.Height.  
+
+- Implementing NodeAsterisk.Draw() in order to satisfy NodeValue interface
+```go
+func (nA NodeAsterisk) Draw() *drawer.Drawer {
+	d, err := drawer.NewDrawer(nA.Width, nA.Height)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for x := 0; x < nA.Width; x++ {
+		for y := 0; y < nA.Height; y++ {
+			err = d.DrawRune('*', x, y)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+	return d
+}
+```
+The method allocates a new drawer with width nA.Width and height nA.Height, then loops over each cell and fills it with an '*'.  
+You can implement this method to represent your data as you want.
+
+- Adding instances of NodeAsterisk to a tree
+```go
+t := tree.NewTree(NodeAsterisk{3, 4})
+t.AddChild(NodeAsterisk{1, 2})
+t.AddChild(NodeAsterisk{3, 3})
+```
+- Drawing the tree
+```go
+fmt.Println(t)
+```
+```
+  ╭───╮  
+  │***│  
+  │***│  
+  │***│  
+  │***│  
+  ╰─┬─╯  
+ ╭──┴─╮  
+╭┴╮ ╭─┴─╮
+│*│ │***│
+│*│ │***│
+╰─╯ │***│
+    ╰───╯
+
+```
 ## Examples
-## Known issues
+## Known issues 🐛
 - Emojis are larger than normal characters
 ```go
 fmt.Println(tree.NewTree(tree.NodeString("emojis are buggy 🤪")))

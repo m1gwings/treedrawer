@@ -12,7 +12,7 @@ import (
 // NodeValue is the interface that wraps the Draw method.
 //
 // The Draw method allows to convert data into its unicode canvas representation.
-// With the Draw method you can control how your data is going to be appear on the tree.
+// With the Draw method you can control how your data is going to appear on the tree.
 type NodeValue interface {
 	Draw() *drawer.Drawer
 }
