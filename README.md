@@ -155,7 +155,7 @@ Setting the value of a node
 t.SetVal(tree.NodeInt64(3))
 ```
 ### Drawing the tree
-*tree.Tree implements the Stringer interface, just use package fmt to draw trees to console
+*tree.Tree implements the Stringer interface, just use package fmt to draw trees to terminal
 ```go
 fmt.Println(t)
 ```
