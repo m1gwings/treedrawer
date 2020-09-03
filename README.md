@@ -1,5 +1,5 @@
 # treedrawer
-**treedrawer** is a Go module that will help you drawing trees to console like the one below.
+**treedrawer** is a Go module for drawing trees on the terminal like the one below.
 ```
                                     ╭─╮                                    
                                     │9│                                    
