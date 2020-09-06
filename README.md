@@ -234,7 +234,7 @@ fmt.Println(t)
 
 ```
 ## Examples
-You can find these examples inside the ./examples folder
+You can find these examples inside the **./examples** folder
 ### HTML tree
 ```sh
 # Assume the following code is in htmltree.go file
@@ -361,6 +361,36 @@ $ go run filesystemtree.go
             ╰───────────╯ ╰─────────────────╯           ╰──────────────╯  ╰─────────╯           ╰────────────────╯  ╰────────────╯  ╰───────╯ ╰─────────────╯ ╰────────────╯ 
 
 ```
+## Benchmarks
+You can find the code used for the benchmark inside **./tree/stringify_test.go**  
+In order to profile the module we first create trees with **l** layers and **c** children for each node, except leaf nodes. Each node has a tree.NodeString("*") as value.  
+For example the tree below has 3 layers and 2 children for each node.
+```
+      ╭─╮      
+      │*│      
+      ╰┬╯      
+   ╭───┴───╮   
+  ╭┴╮     ╭┴╮  
+  │*│     │*│  
+  ╰┬╯     ╰┬╯  
+ ╭─┴─╮   ╭─┴─╮ 
+╭┴╮ ╭┴╮ ╭┴╮ ╭┴╮
+│*│ │*│ │*│ │*│
+╰─╯ ╰─╯ ╰─╯ ╰─╯
+
+```
+In our benchmark function we print to **/dev/null** a tree with the specified **l** and **c** parameter.  
+Name|Iterations|Time|Children per Node|Layers|Total of Nodes|Memory|Allocations
+-|-|-|-|-|-|-|-|
+BenchmarkDrawing3L3C-12|10000|100063 ns/op|3.00 children|3.00 layers|13.0 nodes|135576 B/op|722 allocs/op
+BenchmarkDrawing100L1C-12|382|3096956 ns/op|1.00 children|100 layers|100 nodes|3727628 B/op|23297 allocs/op
+BenchmarkDrawing6L3C-12|9|119789317 ns/op|3.00 children|6.00 layers|364 nodes|366549320 B/op|33606 allocs/op
+BenchmarkDrawing1000L1C-12|7|161607620 ns/op|1.00 children|1000 layers|1000 nodes|373048737 B/op|2033004 allocs/op
+BenchmarkDrawing10L2C-12|2|733952840 ns/op|2.00 children|10.0 layers|1023 nodes|4375790984 B/op|114909 allocs/op
+BenchmarkDrawing11L2C-12|1|3661883138 ns/op|2.00 children|11.0 layers|2047 nodes|20557038432 B/op|249910 allocs/op
+BenchmarkDrawing8L3C-12|1|8550947886 ns/op|3.00 children|8.00 layers|3280 nodes|50574173168 B/op|387828 allocs/op
+BenchmarkDrawing12L2C-12|1|13559015034 ns/op|2.00 children|12.0 layers|4095 nodes|96166288000 B/op|538283 allocs/op
+##### Generated using go version go1.15.1 linux/amd64
 ## Known issues 🐛
 - Emojis are larger than normal characters
 ```go
