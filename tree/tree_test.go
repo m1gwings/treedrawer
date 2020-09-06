@@ -2,12 +2,7 @@ package tree
 
 import (
 	"fmt"
-	"log"
-	"math/rand"
 	"testing"
-	"time"
-
-	"github.com/m1gwings/treedrawer/drawer"
 )
 
 func TestTreeBuilding(t *testing.T) {
@@ -77,56 +72,10 @@ func TestRoot(t *testing.T) {
 	fmt.Println(tr)
 }
 
-type NodeWeird struct{}
-
-func (nW NodeWeird) Draw() *drawer.Drawer {
-	h := rand.Intn(6) + 1
-	w := rand.Intn(6) + 1
-	d, err := drawer.NewDrawer(w, h)
-	if err != nil {
-		log.Fatal(fmt.Errorf("error while allocating new drawer in NodeWeird.Draw: %v", err))
-	}
-	for x := 0; x < w; x++ {
-		for y := 0; y < h; y++ {
-			d.DrawRune('*', x, y)
-		}
-	}
-	return d
-}
-
-func TestParentBiggerThanBothChildren(t *testing.T) {
-	tr := NewTree(NodeString("qwertyuiopasdfghjkl"))
-	tr.AddChild(NodeString("sa"))
-	tr.AddChild(NodeString("as"))
-
-	fmt.Println(tr)
-}
-
-func TestNodeStringWithNewLine(t *testing.T) {
-	tr := NewTree(NodeString("abcd\nab\nababab\n"))
-	fmt.Println(tr)
-}
-
 func TestBuiltInNodes(t *testing.T) {
 	tr := NewTree(NodeInt64(1))
 	tr.AddChild(NodeFloat64(1.5))
 	tr.AddChild(NodeComplex128(1 + 1i))
 	tr.AddChild(NodeString("string"))
 	fmt.Println(tr)
-}
-
-func TestNodeWeird(t *testing.T) {
-	rand.Seed(time.Now().Unix())
-
-	fmt.Println(WeirdTree(5))
-}
-
-func WeirdTree(depth int) *Tree {
-	t := NewTree(NodeWeird{})
-	nChildren := rand.Intn(depth)
-	for i := 0; i < nChildren; i++ {
-		t.children = append(t.children, WeirdTree(depth-1))
-		t.children[i].val = NodeWeird{}
-	}
-	return t
 }
